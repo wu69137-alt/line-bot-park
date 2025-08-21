@@ -1,8 +1,9 @@
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage, MessageEvent, TextMessage
+from linebot.exceptions import InvalidSignatureError
 import os
 import json
-from flask import Flask
+from flask import Flask, request, abort
 
    # 替換成你的 LINE 認證資訊（後續步驟會獲取）
 LINE_CHANNEL_ACCESS_TOKEN = "xY8MaHCSk0k8iAKz0YRGv09XDcZAtDkDfelgmxjq253w/Eu/o98shf/heH38tD1pG4ApFd4VlgGza0EZoIvnaCjOicxdsiqUT7i0oQtZzUTRQmw/v+W4F9vuZrrVfgFCeG/Zb/COHiA1v+hgRqdepgdB04t89/1O/w1cDnyilFU="
@@ -34,6 +35,16 @@ def handle_message(event):
        else:
            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入「查詢:行政區」來查詢公園！\n例如：查詢:大安區"))
 
+@app.route("/callback", methods=['POST'])
+def callback():
+    signature = request.headers['X-Line-Signature']
+    body = request.get_data(as_text=True)
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
+    return 'OK'
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # 從環境變數獲取端口，預設 5000
+    port = int(os.environ.get("PORT", 10000))  # 與 Render 檢測的端口一致
     app.run(host='0.0.0.0', port=port)
