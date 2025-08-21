@@ -34,4 +34,5 @@ def handle_message(event):
            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入「查詢:行政區」來查詢公園！\n例如：查詢:大安區"))
 
 if __name__ == "__main__":
-    app.run()
+    port = int(os.environ.get("PORT", 5000))  # 從環境變數獲取端口，預設 5000
+    app.run(host='0.0.0.0', port=port)
