@@ -20,20 +20,35 @@ with open('parks.json', 'r', encoding='utf-8') as f:
    # 處理使用者訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-       user_input = event.message.text
-       if user_input.startswith("查詢:"):
-           district = user_input.replace("查詢:", "").strip()
-           # 過濾臺北市的公園
-           taipei_parks = [p for p in parks if p["city"] == "臺北市" and p["district"] == district]
-           if taipei_parks:
-               response = f"【{district} 公園列表】\n"
-               for park in taipei_parks:
-                   response += f"- {park['name']}: 器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n"
-           else:
-               response = f"沒有找到 {district} 的公園資料！"
-           line_bot_api.reply_message(event.reply_token, TextSendMessage(text=response))
-       else:
-           line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入「查詢:行政區」來查詢公園！\n例如：查詢:大安區"))
+    user_input = event.message.text
+    if user_input.startswith("查詢："):
+        # 移除 "查詢:" 並分割輸入
+        query = user_input.replace("查詢：", "").strip()
+        parts = query.split()  # 分割為行政區和器材
+        district = parts[0] if parts else ""
+        equipment = parts[1] if len(parts) > 1 else None
+
+        taipei_parks = [p for p in parks if p["city"] == "臺北市" and p["district"] == district]
+        if taipei_parks:
+            if equipment:
+                # 過濾有特定器材的公園
+                filtered_parks = [p for p in taipei_parks if equipment in p.get("equipment", [])]
+                if filtered_parks:
+                    response = f"【{district} 公園列表（有 {equipment}）】\n"
+                    for park in filtered_parks:
+                        response += f"- {park['name']}: 器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n"
+                else:
+                    response = f"【{district}】沒有公園提供 {equipment}！"
+            else:
+                # 沒有指定器材，顯示所有公園
+                response = f"【{district} 公園列表】\n"
+                for park in taipei_parks:
+                    response += f"- {park['name']}: 器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n"
+        else:
+            response = f"沒有找到 {district} 的公園資料！"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=response))
+    else:
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入「查詢：行政區 [器材]」來查詢公園！\n例如：查詢:大安區 籃球場"))
 
 @app.route("/callback", methods=['POST'])
 def callback():
