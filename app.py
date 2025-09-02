@@ -53,18 +53,20 @@ def handle_message(event):
     else:
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入「查詢：行政區 [器材]」來查詢公園！\n例如：查詢：大安區 漫步器"))
 
-@app.route("/callback", methods=['POST'])
+@app.route("/callback", methods=['GET', 'POST'])
 def callback():
-    signature = request.headers['X-Line-Signature']
-    body = request.get_data(as_text=True)
-    try:
-        handler.handle(body, signature)
-    except InvalidSignatureError:
-        abort(400)
+    if request.method == 'POST':
+        signature = request.headers['X-Line-Signature']
+        body = request.get_data(as_text=True)
+        try:
+            handler.handle(body, signature)
+        except InvalidSignatureError:
+            abort(400)
+    elif request.method == 'GET':
+        return 'OK'  # 回應 UptimeRobot 的健康檢查
     return 'OK'
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))  # 與 Render 檢測的端口一致
     app.run(host='0.0.0.0', port=port)
-    port = int(os.environ.get("PORT", 10000))  # 與 Render 檢測的端口一致
-    app.run(host='0.0.0.0', port=port)
+    
