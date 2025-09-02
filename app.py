@@ -27,7 +27,8 @@ def handle_message(event):
         parts = query.split()  # 分割為行政區和器材
         district = parts[0] if parts else ""
         equipment = parts[1] if len(parts) > 1 else None
-        
+
+        NEWtaipei_parks = [p for p in parks if p["city"] == "新北市" and p["district"] == district]
         taipei_parks = [p for p in parks if p["city"] == "臺北市" and p["district"] == district]
         if taipei_parks:
             if equipment:
@@ -44,6 +45,27 @@ def handle_message(event):
             else:
                 response = f"【{district} 公園列表】\n\n"
                 for park in taipei_parks:
+                    response += f"- {park['name']}：\n"
+                    response += f"  地址 {park.get('map_link', '無地圖連結')}\n"
+                    response += f"  器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n\n"
+        else:
+            response = f"沒有找到 {district} 的公園資料：！"
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=response))
+        if NEWtaipei_parks:
+            if equipment:
+                # 過濾有特定器材的公園，考慮數量格式
+                filtered_parks = [p for p in NEWtaipei_parks if any(equipment in eq for eq in p.get("equipment", []))]
+                if filtered_parks:
+                    response = f"【{district} 公園列表有 {equipment}】\n\n"
+                    for park in filtered_parks:
+                        response += f"- {park['name']}：\n"
+                        response += f"  地址 {park.get('map_link', '無地圖連結')}\n"
+                        response += f"  器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n\n"
+                else:
+                    response = f"【{district}】沒有公園提供 {equipment}：！"
+            else:
+                response = f"【{district} 公園列表】\n\n"
+                for park in NEWtaipei_parks:
                     response += f"- {park['name']}：\n"
                     response += f"  地址 {park.get('map_link', '無地圖連結')}\n"
                     response += f"  器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n\n"
