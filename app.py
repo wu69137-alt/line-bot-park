@@ -9,7 +9,6 @@ import requests
 # 替換成你的 LINE 認證資訊
 LINE_CHANNEL_ACCESS_TOKEN = "你的_LINE_CHANNEL_ACCESS_TOKEN"
 LINE_CHANNEL_SECRET = "你的_LINE_CHANNEL_SECRET"
-REURL_API_TOKEN = "你的_reurl_api_token"
 
 app = Flask(__name__)
 # 初始化 LINE Bot
@@ -17,39 +16,6 @@ line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
 
 
-def shorten_url(url):
-    """使用 reurl.cc API 縮短網址"""
-    if not url or url == "無地圖連結":
-        return url
-    api_url = "https://api.reurl.cc/shorten"
-    headers = {
-        "Content-Type": "application/json",
-        "reurl-api-key": REURL_API_TOKEN
-    }
-    payload = {"url": url}
-    try:
-        response = requests.post(api_url, headers=headers, json=payload, timeout=5)
-        result = response.json()
-        if result.get("short_url"):
-            return result["short_url"]
-        else:
-            return url
-    except Exception as e:
-        print("縮網址失敗:", e)
-        return url
-
-
-# 載入 parks.json 並縮短所有網址
-with open("parks.json", "r", encoding="utf-8") as f:
-    parks = json.load(f)
-
-for park in parks:
-    if "map_link" in park:
-        park["map_link"] = shorten_url(park["map_link"])
-
-# 如果要把縮短結果存回 parks.json（避免下次重複縮），可以啟用這行
-# with open("parks.json", "w", encoding="utf-8") as f:
-#     json.dump(parks, f, ensure_ascii=False, indent=2)
 
 
 # 處理使用者訊息
