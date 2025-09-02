@@ -36,13 +36,13 @@ def handle_message(event):
                 if filtered_parks:
                     response = f"【{district} 公園列表有 {equipment}】\n"
                     for park in filtered_parks:
-                        response += f"- {park['name']}：器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n"
+                        response += f"- {park['name']}：器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n\n"
                 else:
                     response = f"【{district}】沒有公園提供 {equipment}：！"
             else:
                 response = f"【{district} 公園列表】\n"
                 for park in taipei_parks:
-                    response += f"- {park['name']}：器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n"
+                    response += f"- {park['name']}：器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n\n"
         else:
             response = f"沒有找到 {district} 的公園資料：！"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=response))
