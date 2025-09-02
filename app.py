@@ -35,8 +35,10 @@ def handle_message(event):
                 filtered_parks = [p for p in taipei_parks if any(equipment in eq for eq in p.get("equipment", []))]
                 if filtered_parks:
                     response = f"【{district} 公園列表有 {equipment}】\n\n"
-                    for park in filtered_parks:
-                        response += f"- {park['name']}：器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n\n"
+                for park in filtered_parks:
+                    response += f"- {park['name']}：\n"
+                    response += f"  地址 {park.get('map_link', '無地圖連結')}\n"
+                    response += f"  器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n\n"
                 else:
                     response = f"【{district}】沒有公園提供 {equipment}：！"
             else:
