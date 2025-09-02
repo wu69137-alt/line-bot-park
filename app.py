@@ -34,13 +34,13 @@ def handle_message(event):
                 # 過濾有特定器材的公園，考慮數量格式
                 filtered_parks = [p for p in taipei_parks if any(equipment in eq for eq in p.get("equipment", []))]
                 if filtered_parks:
-                    response = f"【{district} 公園列表有 {equipment}】\n"
+                    response = f"【{district} 公園列表有 {equipment}】\n\n"
                     for park in filtered_parks:
                         response += f"- {park['name']}：器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n\n"
                 else:
                     response = f"【{district}】沒有公園提供 {equipment}：！"
             else:
-                response = f"【{district} 公園列表】\n"
+                response = f"【{district} 公園列表】\n\n"
                 for park in taipei_parks:
                     response += f"- {park['name']}：器材 {', '.join(park['equipment']) if park['equipment'] else '無'}\n\n"
         else:
