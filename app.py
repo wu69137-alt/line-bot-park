@@ -27,7 +27,7 @@ def handle_message(event):
         parts = query.split()  # 分割為行政區和器材
         district = parts[0] if parts else ""
         equipment = parts[1] if len(parts) > 1 else None
-
+        
         taipei_parks = [p for p in parks if p["city"] == "臺北市" and p["district"] == district]
         if taipei_parks:
             if equipment:
